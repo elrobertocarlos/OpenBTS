@@ -71,11 +71,21 @@ class SipUri : public string {		// The base class string contains the full URI.
 		if (size() < start) return string("");
 		return substr(start,find_first_of(";&",start)-start);
 	}
-	string uriHostAndPort() const {
-		string addr = uriAddress();
-		size_t where = addr.find_first_of('@');
-		return (where == string::npos) ? string("") : addr.substr(where+1);
-	}
+        string uriHostAndPort() const {
+                string addr = uriAddress();
+                size_t where = addr.find_first_of('@');
+                if (where == string::npos) {
+                        WATCH("SipUri not@: "<<addr<<" "<<addr.substr(start));
+                        size_t pos = addr.find("sip:");
+                        if (pos == string::npos) {
+                                return addr;
+                        } else {
+                                return addr.substr(start);
+                        }
+                } else {
+                        return addr.substr(where+1);
+                }
+        }
 	// Create a uri from another full uri.  If it is <uri> chop off the < and >
 	void uriSet(string fullUri) {
 		if (fullUri.size() == 0) { clear(); return; }	// Dont let fullUri[0] will throw an exception.
